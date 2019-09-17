@@ -31,15 +31,11 @@ public class Exercicio4 {
         // registrar classes
         j.setJarByClass(Exercicio4.class);
         j.setMapperClass(MapEx4.class);
-        j.setCombinerClass(CombineEx4.class);
         j.setReducerClass(ReduceEx4.class);
 
         // definir tipos de saída
         j.setOutputKeyClass(Text.class);
         j.setOutputValueClass(FloatWritable.class);
-        j.setOutputKeyClass(Text.class);
-        j.setOutputValueClass(Exercicio4Writable.class);
-
 
         // definir arquivos de entrada e saída
         FileInputFormat.addInputPath(j, input);
@@ -49,53 +45,35 @@ public class Exercicio4 {
         System.exit(j.waitForCompletion(true) ? 0 : 1);
     }
 
-    public static class MapEx4 extends Mapper<LongWritable, Text, Text, IntWritable> {
+    public static class MapEx4 extends Mapper<LongWritable, Text, Text, FloatWritable> {
         // função de map
         public void map(LongWritable key, Text value, Context con) throws IOException, InterruptedException {
             // obtendo linha
             String linha = value.toString();
             // quebrando linha
             String[] palavras = linha.split(";");
-            // emitindo <chave, valor> no formato <"str", (ano,mercadoria)>
-            con.write(new Text("str"), new Exercicio4Writable(palavras[2], Long.parseLong(palavras[3])));
-            //emitir (chave = 'média', valor=(peso,mercadoria))
-            Exercicio4Writable float = new Exercicio4Writable(Peso,6);
-            con.write(new Text("Média"),float);
-
+            // tratamento para evitar a 'head' ou string vazia
+            if(!palavras[6].equals("weight_kg") && !palavras[6].equals("")){
+                // emitindo <chave, valor> no formato <mercadoria | ano, peso)>
+                con.write(new Text(palavras[3] + " | " + palavras[1]), new FloatWritable(Float.parseFloat(palavras[6])));
+            }
         }
     }
 
-    public static class ReduceEx4 extends Reducer<Text,Exercicio4Writable, Text, FloatWritable>{
-        public void reduce(Text word, Iterable<Exercicio4Writable> values, Context con) throws IOException, InterruptedException {
-            // variável para armazenar a soma
-            // variável para armazenar a média
+    public static class ReduceEx4 extends Reducer<Text, FloatWritable, Text, FloatWritable>{
+        public void reduce(Text word, Iterable<FloatWritable> values, Context con) throws IOException, InterruptedException {
+            // variável para armazenar peso
             float somaPeso = 0;
-            String somaMercadoria = new String();
-            // somatorio de Mercadoria e peso
-            for (Exercicio4Writable o : values){
-                somaPeso += o.getPeso();
-                somaMercadoria += o.getMercadoria();
+            // variável para contar ocorrências para média
+            int cont = 0;
+            for (FloatWritable o : values){
+                somaPeso += Float.parseFloat(String.valueOf(o));
+                cont++;
             }
             //calculando a média
-            float Média = somaPeso / somaMercadoria;
-            // (chave = "media", valor = media)
-            con.write(new Text("Média"), new FloatWritable(Média));
+            float media = somaPeso / cont;
+            //emitir (chave = 'mercadoria | ano', valor = média de peso)
+            con.write(word, new FloatWritable(media));
         }
     }
-    public static class CombineEx4 extends Reducer<Text, Exercicio4Writable, Text, Exercicio4Writable>{
-
-        public void reduce(Text key, Iterable<Exercicio4Writable> values, Context con) throws IOException, InterruptedException {
-            float somaPeso = 0f;
-            String somaMercadoria = new String();
-            for(Exercicio4Writable o : values){
-                somaPeso += o.getPeso();
-                somaMercadoria += o.getMercadoria();
-            }
-
-            Exercicio4Writable vlr= new Exercicio4Writable(somaPeso, somaMercadoria);
-
-            con.write(key, vlr);
-        }
-    }
-
-} 
+}
