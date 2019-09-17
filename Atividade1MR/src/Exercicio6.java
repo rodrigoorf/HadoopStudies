@@ -32,14 +32,11 @@ public class Exercicio6 {
         // registrar classes
         j.setJarByClass(Exercicio6.class);
         j.setMapperClass(MapEx6.class);
-        j.setCombinerClass(CombineEx6.class);
         j.setReducerClass(ReduceEx6.class);
 
         // definir tipos de saída
         j.setOutputKeyClass(Text.class);
         j.setOutputValueClass(FloatWritable.class);
-        j.setOutputKeyClass(Text.class);
-        j.setOutputValueClass(Exercicio6Writable.class);
 
 
         // definir arquivos de entrada e saída
@@ -50,7 +47,7 @@ public class Exercicio6 {
         System.exit(j.waitForCompletion(true) ? 0 : 1);
     }
 
-    public static class MapEx6 extends Mapper<LongWritable, Text, Text, IntWritable> {
+    public static class MapEx6 extends Mapper<LongWritable, Text, Text, FloatWritable> {
         // função de map
         public void map(LongWritable key, Text value, Context con) throws IOException, InterruptedException {
             // obtendo linha
@@ -59,46 +56,24 @@ public class Exercicio6 {
             String[] palavras = linha.split(";");
             // verificando se a transação envolve o Brasil
             if(palavras[0].equals("Brazil")){
-                // emitindo <chave, valor> no formato <mercadoria, qtde>
-                con.write(new Text(palavras[3]), new IntWritable(1));
+                //emitir chave = (mercadoria | unidade de peso | ano), valor = (valor)
+                con.write(new Text(palavras[3] + " | " + palavras[7] + " | " + palavras[1]), new FloatWritable(Float.parseFloat(palavras[5])));
             }
-            con.write(new Text(palavras[1]), new IntWritable(1));
         }
     }
 
-    public static class ReduceEx6 extends Reducer<Text,Exercicio6Writable, Text, FloatWritable>{
-        public void reduce(Text word, Iterable<Exercicio6Writable> values, Context con) throws IOException, InterruptedException {
-            // variável para armazenar a soma
-            // variável para armazenar a média
-            float somaPeso = 0;
-            float somaValor = 0;
-            // somatorio de Valor e Peso
-            for (Exercicio6Writable o : values){
-                somaPeso += o.getPeso();
-                somaValor += o.getValor();
+    public static class ReduceEx6 extends Reducer<Text, FloatWritable, Text, FloatWritable>{
+        public void reduce(Text word, Iterable<FloatWritable> values, Context con) throws IOException, InterruptedException {
+            // variável para armazenar valores
+            float somaValores = 0;
+            // variável para fazer média com valores
+            int cont = 0;
+            for(FloatWritable o : values){
+                somaValores += Float.parseFloat(String.valueOf(o));
+                cont++;
             }
-            //calculando a média
-            float media = somaPeso / somaValor;
-            // (chave = "media", valor = media)
-            con.write(new Text("media"), new FloatWritable(media));
-
+            float media = somaValores / cont;
+            con.write(word, new FloatWritable(media));
         }
     }
-    public static class CombineEx6 extends Reducer<Text, Exercicio6Writable, Text, Exercicio6Writable>{
-
-        public void reduce(Text key, Iterable<Exercicio6Writable> values, Context con) throws IOException, InterruptedException {
-            float somaPeso = 0f;
-            float somaValor = 0f;
-            for(Exercicio6Writable o : values){
-                somaValor += o.getValor();
-                somaPeso += o.getPeso();
-
-            }
-
-            Exercicio6Writable vlr= new Exercicio6Writable(somaValor,somaPeso);
-
-            con.write(key, vlr);
-        }
-    }
-
 } 
