@@ -13,8 +13,7 @@ import org.mortbay.jetty.servlet.Context;
 import java.io.IOException;
 
 public class Exercicio6 {
-    // Média de valor por peso, de acordo com a mercadoria comercializadas no Brasil (como a
-    // base de dados está em inglês utilize Brazil, com Z), separadas de acordo com o ano;
+    // Média de valor por peso, de acordo com a mercadoria comercializadas no Brasil, separadas de acordo com o ano
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         BasicConfigurator.configure();
 

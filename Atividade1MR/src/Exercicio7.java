@@ -14,6 +14,7 @@ import org.apache.log4j.BasicConfigurator;
 import java.io.IOException;
 
 public class Exercicio7 {
+    // Mercadoria com o maior preço por unidade de peso
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         BasicConfigurator.configure();
 

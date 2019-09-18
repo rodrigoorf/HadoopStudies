@@ -15,6 +15,7 @@ import org.apache.log4j.BasicConfigurator;
 import java.io.IOException;
 
 public class Exercicio8 {
+    // Quantidade de transações comerciais de acordo com o fluxo, de acordo com o ano
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         BasicConfigurator.configure();
 

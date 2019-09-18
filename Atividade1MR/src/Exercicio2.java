@@ -56,7 +56,7 @@ public class Exercicio2 {
 
             // Pegar a quantidade de transação por ano
 
-            // emitindo <chave, valor> no formato <transacao, qtde>
+            // emitindo <chave, valor> no formato <ano, qtde>
             con.write(new Text(palavras[1]), new IntWritable(1));
 
         }

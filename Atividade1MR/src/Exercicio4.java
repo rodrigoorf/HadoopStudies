@@ -13,7 +13,7 @@ import org.mortbay.jetty.servlet.Context;
 import java.io.IOException;
 
 public class Exercicio4 {
-    // Média de peso por mercadoria, separadas de acordo com o ano;
+    // Média de peso por mercadoria, separadas de acordo com o ano
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         BasicConfigurator.configure();
 
